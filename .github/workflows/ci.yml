@@ -48,7 +48,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Image bauen
-        run: docker build --build-arg APP_VERSION=${{ github.sha }} -t webapp:test app
+        run: docker build --build-arg APP_VERSION=${{ github.sha }} -t webapp:test abschlussprojekt/app
 
       - name: Container starten
         run: docker run -d --name webapp -p 8080:3000 -e PLATTFORM=CI webapp:test
