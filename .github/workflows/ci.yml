@@ -42,13 +42,16 @@ jobs:
   docker-test:
     name: Docker-Image testen
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: abschlussprojekt/app
     needs: app-test
     steps:
       - name: Code auschecken
         uses: actions/checkout@v5
 
       - name: Image bauen
-        run: docker build --build-arg APP_VERSION=${{ github.sha }} -t webapp:test abschlussprojekt/app
+        run: docker build --build-arg APP_VERSION=${{ github.sha }} -t webapp:test .
 
       - name: Container starten
         run: docker run -d --name webapp -p 8080:3000 -e PLATTFORM=CI webapp:test
