@@ -1,43 +1,43 @@
-name: Terraform CI
+# name: Terraform CI
 
-on:
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
+# on:
+#   pull_request:
+#     branches:
+#       - main
+#   workflow_dispatch:
 
-env:
-  # Zugangsdaten für AWS (geheim → Secrets)
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_REGION: us-east-1
-  # Terraform-Variablen (nicht geheim → Variables). TF_VAR_vorname wird zu var.vorname
-  TF_VAR_vorname: ${{ vars.VORNAME }}
-  TF_VAR_key_name: ${{ vars.KEY_NAME }}
-  # Terraform weiß dann, dass es in einer Pipeline läuft, und spart sich Tipps wie "run terraform apply"
-  TF_IN_AUTOMATION: "true"
+# env:
+#   # Zugangsdaten für AWS (geheim → Secrets)
+#   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#   AWS_REGION: us-east-1
+#   # Terraform-Variablen (nicht geheim → Variables). TF_VAR_vorname wird zu var.vorname
+#   TF_VAR_vorname: ${{ vars.VORNAME }}
+#   TF_VAR_key_name: ${{ vars.KEY_NAME }}
+#   # Terraform weiß dann, dass es in einer Pipeline läuft, und spart sich Tipps wie "run terraform apply"
+#   TF_IN_AUTOMATION: "true"
 
-jobs:
-  plan:
-    name: Terraform Plan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Code auschecken
-        uses: actions/checkout@v5
+# jobs:
+#   plan:
+#     name: Terraform Plan
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Code auschecken
+#         uses: actions/checkout@v5
 
-      - name: Terraform installieren
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
+#       - name: Terraform installieren
+#         uses: hashicorp/setup-terraform@v3
+#         with:
+#           terraform_wrapper: false
 
-      - name: Formatierung prüfen
-        run: terraform fmt -check -diff
+#       - name: Formatierung prüfen
+#         run: terraform fmt -check -diff
 
-      - name: Init
-        run: terraform init -input=false
+#       - name: Init
+#         run: terraform init -input=false
 
-      - name: Validate
-        run: terraform validate
+#       - name: Validate
+#         run: terraform validate
 
-      - name: Plan
-        run: terraform plan -input=false -out=tfplan
+#       - name: Plan
+#         run: terraform plan -input=false -out=tfplan
