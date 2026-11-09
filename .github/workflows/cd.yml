@@ -85,7 +85,7 @@ jobs:
             --build-arg APP_VERSION=${{ github.sha }} \
             -t "$ECR_URL:${{ github.sha }}" \
             -t "$ECR_URL:latest" \
-            app
+            abschlussprojekt/app
 
       - name: Image pushen
         id: push
