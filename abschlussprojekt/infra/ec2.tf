@@ -1,10 +1,9 @@
 # ---------------------------------------------------------------
 # Firewall
 # ---------------------------------------------------------------
-
 resource "aws_security_group" "server" {
   name        = "${var.vorname}-webapp-sg"
-  description = "Firewall fuer den Terraform-Kurs-Server"
+  description = "Firewall fuer den Web-App-Server"
   vpc_id      = aws_vpc.main.id
 
   tags = {
@@ -23,7 +22,7 @@ resource "aws_vpc_security_group_ingress_rule" "http" {
   to_port           = var.host_port
 }
 
-# Ausgehend: alles erlaubt (z. B. für apt update)
+# Ausgehend: alles erlaubt (Pakete installieren, Images aus ECR ziehen, SSM)
 resource "aws_vpc_security_group_egress_rule" "alles" {
   security_group_id = aws_security_group.server.id
   description       = "Alles nach draussen"
@@ -35,6 +34,7 @@ resource "aws_vpc_security_group_egress_rule" "alles" {
 # Server
 # ---------------------------------------------------------------
 
+# Amazon Linux 2023: AWS CLI und SSM-Agent sind schon vorinstalliert
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
@@ -45,14 +45,16 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-# Die EC2-Instanz
 resource "aws_instance" "server" {
   ami                         = data.aws_ami.amazon_linux.id
   instance_type               = var.instance_type
   subnet_id                   = aws_subnet.public.id
   vpc_security_group_ids      = [aws_security_group.server.id]
   associate_public_ip_address = true
-    user_data = <<-SKRIPT
+  iam_instance_profile        = aws_iam_instance_profile.ec2.name
+
+  # Wird beim ERSTEN Start einmalig als root ausgeführt: Docker installieren
+  user_data = <<-SKRIPT
     #!/bin/bash
     set -eux
     dnf install -y docker
@@ -60,9 +62,10 @@ resource "aws_instance" "server" {
     usermod -aG docker ec2-user
   SKRIPT
 
+  # Ändert sich das Skript, wird die Instanz neu gebaut (sonst liefe es nie wieder)
   user_data_replace_on_change = true
 
   tags = {
-    Name = "${var.vorname}-server"
+    Name = "${var.vorname}-webapp-server"
   }
 }
